@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WB Assessoria · Assistente</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080a0f; --card:#0e1118; --surface:#141820;
+    --border:#1e2435; --gold:#b8953a; --gold2:#d4b06a;
+    --gold3:#eedfa0; --gold-glow:rgba(184,149,58,0.18);
+    --text:#e9e6df; --muted:#6b7490; --dim:#383f55;
+    --green:#2ea86e; --ig:#c165dd;
+    --ba:#111520; --bu:rgba(184,149,58,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);color:var(--text);
+    display:flex;align-items:center;justify-content:center;min-height:100vh;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(184,149,58,.07) 0%,transparent 70%);
+    pointer-events:none;z-index:0;
+  }
+  #app{
+    position:relative;z-index:1;width:100%;max-width:520px;height:100vh;
+    display:flex;flex-direction:column;background:var(--card);
+    border-left:1px solid var(--border);border-right:1px solid var(--border);overflow:hidden;
+  }
+  .ig-strip{
+    display:flex;align-items:center;gap:10px;padding:8px 20px;
+    background:linear-gradient(90deg,rgba(131,58,180,.1),rgba(253,29,29,.06),rgba(252,176,69,.06));
+    border-bottom:1px solid rgba(193,101,221,.15);text-decoration:none;transition:background .2s;flex-shrink:0;
+  }
+  .ig-strip:hover{background:linear-gradient(90deg,rgba(131,58,180,.18),rgba(253,29,29,.1),rgba(252,176,69,.1))}
+  .ig-ico{
+    width:24px;height:24px;border-radius:6px;flex-shrink:0;
+    background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ig-ico svg{width:13px;height:13px;fill:#fff}
+  .ig-strip span{font-size:11px;color:var(--ig);font-weight:500}
+  .ig-strip small{font-size:10px;color:var(--muted);margin-left:auto}
+  .hdr{
+    padding:16px 20px 14px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:14px;flex-shrink:0;background:var(--card);
+  }
+  .av-wrap{position:relative;flex-shrink:0}
+  .av-main{
+    width:46px;height:46px;border-radius:50%;
+    background:linear-gradient(135deg,#b8953a,#6a4d12);
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+    box-shadow:0 0 0 2px var(--card),0 0 0 4px rgba(184,149,58,.3);
+  }
+  .dot{
+    position:absolute;bottom:1px;right:1px;width:10px;height:10px;
+    background:var(--green);border-radius:50%;border:2px solid var(--card);
+    animation:pulse 2.5s infinite;
+  }
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,168,110,.5)}70%{box-shadow:0 0 0 5px rgba(46,168,110,0)}}
+  .hdr-info h1{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold2)}
+  .hdr-info p{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .flags{margin-left:auto;display:flex;gap:5px;align-items:center}
+  .flag{font-size:17px;filter:grayscale(30%);cursor:default;transition:transform .15s;line-height:1}
+  .flag:hover{transform:scale(1.25)}
+  #msgs{
+    flex:1;overflow-y:auto;padding:18px 16px;
+    display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;
+  }
+  #msgs::-webkit-scrollbar{width:3px}
+  #msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .row{display:flex;gap:9px;animation:up .28s ease}
+  @keyframes up{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .row.me{flex-direction:row-reverse}
+  .av{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;flex-shrink:0;margin-top:2px;
+  }
+  .av.bot{background:linear-gradient(135deg,#b8953a,#6a4d12)}
+  .av.usr{background:var(--surface);border:1px solid var(--border);font-size:13px}
+  .bub{max-width:78%;padding:11px 15px;border-radius:16px;font-size:13.5px;line-height:1.65;color:var(--text);}
+  .bub.bot{background:var(--ba);border:1px solid var(--border);border-bottom-left-radius:4px}
+  .bub.me{background:var(--bu);border:1px solid rgba(184,149,58,.18);border-bottom-right-radius:4px;color:var(--gold3);}
+  .bub .ts{font-size:10px;color:var(--dim);margin-top:6px;display:block}
+  .row.me .ts{text-align:right}
+  .typing{
+    background:var(--ba);border:1px solid var(--border);
+    border-radius:16px;border-bottom-left-radius:4px;
+    padding:13px 17px;display:flex;gap:5px;align-items:center;
+  }
+  .typing span{width:7px;height:7px;background:var(--muted);border-radius:50%;animation:dot .9s infinite;}
+  .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+  @keyframes dot{0%,60%,100%{transform:none}30%{transform:translateY(-5px)}}
+  .qrs{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .qr{
+    background:transparent;border:1px solid var(--gold);color:var(--gold2);
+    padding:6px 13px;border-radius:20px;font-size:12px;cursor:pointer;
+    transition:all .18s;font-family:'Inter',sans-serif;
+  }
+  .qr:hover{background:var(--gold-glow);color:var(--gold3)}
+  .inp-bar{
+    padding:12px 14px;border-top:1px solid var(--border);
+    display:flex;gap:9px;align-items:flex-end;background:var(--card);flex-shrink:0;
+  }
+  #txt{
+    flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:11px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:13.5px;
+    resize:none;min-height:44px;max-height:110px;outline:none;transition:border-color .2s;line-height:1.5;
+  }
+  #txt:focus{border-color:var(--gold)}
+  #txt::placeholder{color:var(--dim)}
+  #snd{
+    width:44px;height:44px;flex-shrink:0;
+    background:linear-gradient(135deg,#b8953a,#8a6418);border:none;border-radius:12px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s,opacity .15s;box-shadow:0 4px 14px rgba(184,149,58,.25);
+  }
+  #snd:hover{transform:scale(1.06)}#snd:active{transform:scale(.94)}
+  #snd:disabled{opacity:.35;pointer-events:none}
+  #snd svg{width:17px;height:17px;fill:#0d0f14}
+  .ftr{padding:8px 16px 10px;text-align:center;border-top:1px solid var(--border);font-size:10.5px;color:var(--dim);flex-shrink:0;}
+  .ftr a{color:var(--muted);text-decoration:none}.ftr a:hover{color:var(--gold2)}
+  #toast{
+    position:fixed;bottom:85px;left:50%;
+    transform:translateX(-50%) translateY(60px);
+    background:var(--surface);border:1px solid var(--green);color:var(--green);
+    padding:10px 18px;border-radius:10px;font-size:12.5px;
+    display:flex;align-items:center;gap:7px;opacity:0;transition:all .3s;z-index:200;white-space:nowrap;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  #wa{
+    position:fixed;bottom:22px;right:20px;width:54px;height:54px;
+    background:linear-gradient(135deg,#25d366,#128c4e);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 4px 18px rgba(37,211,102,.45);z-index:100;text-decoration:none;
+    transition:transform .2s,box-shadow .2s;animation:wa-in .5s ease 1.5s both;
+  }
+  @keyframes wa-in{from{opacity:0;transform:scale(0) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  #wa:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(37,211,102,.6)}
+  #wa svg{width:28px;height:28px;fill:#fff}
+  #wa-tip{
+    position:fixed;bottom:30px;right:86px;
+    background:#1a1f2e;border:1px solid var(--border);border-radius:10px;
+    padding:8px 13px;font-size:12.5px;color:var(--text);white-space:nowrap;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;transform:translateX(6px);z-index:99;
+  }
+  #wa-tip::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:#1a1f2e;border-right:0;}
+  #wa:hover + #wa-tip{opacity:1;transform:translateX(0)}
+  #cfg-warn{
+    display:none;align-items:center;gap:8px;padding:9px 16px;
+    background:rgba(212,80,80,.1);border-bottom:1px solid rgba(212,80,80,.25);
+    font-size:11.5px;color:#e87979;flex-shrink:0;
+  }
+  #cfg-warn.show{display:flex}
+  @media(max-width:540px){#app{max-width:100%;border:none}#wa{bottom:16px;right:14px;width:50px;height:50px}#wa-tip{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="cfg-warn">⚠️ <strong>Ação necessária:</strong> Cole a URL do Apps Script na variável APPS_SCRIPT_URL no código</div>
+  <a class="ig-strip" href="https://www.instagram.com/wb.assessoria_/" target="_blank" rel="noopener">
+    <div class="ig-ico"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+    <span>@wb.assessoria_</span><small>Siga no Instagram →</small>
+  </a>
+  <div class="hdr">
+    <div class="av-wrap"><div class="av-main">⚖️</div><div class="dot"></div></div>
+    <div class="hdr-info"><h1>WB Assessoria</h1><p>Assistente Virtual · Imigração & Vistos</p></div>
+    <div class="flags">
+      <span class="flag" title="Português">🇧🇷</span>
+      <span class="flag" title="English">🇺🇸</span>
+      <span class="flag" title="Español">🇪🇸</span>
+      <span class="flag" title="Français">🇫🇷</span>
+      <span class="flag" title="Kreyòl">🇭🇹</span>
+      <span class="flag" title="فارسی">🇮🇷</span>
+    </div>
+  </div>
+  <div id="msgs"></div>
+  <div class="inp-bar">
+    <textarea id="txt" placeholder="Digite sua mensagem..." rows="1"></textarea>
+    <button id="snd"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+  <div class="ftr">Assistente com IA · <a href="https://www.instagram.com/wb.assessoria_/" target="_blank">WB Assessoria</a> · Imigração & Vistos</div>
+</div>
+
+<div id="toast">✓ Seus dados foram registrados com sucesso!</div>
+
+<a id="wa" href="https://wa.me/5511914258886?text=Olá!%20Vim%20pelo%20chat%20da%20WB%20Assessoria%20e%20gostaria%20de%20saber%20mais." target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+<div id="wa-tip">💬 Fale pelo WhatsApp</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  PASSO 1 — Cole aqui a URL gerada pelo Google Apps Script:   ║
+// ╚══════════════════════════════════════════════════════════════╝
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyI5Lquf6_gTOoKvJO_LYb-BGgelOaPZBcfMN9EVEWVg-nbMm5N2MOin4s_LKuZay_3Rg/exec';
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  PASSO 2 — Troque pelo seu número de WhatsApp:               ║
+// ║  Edite o href do botão #wa acima (formato: 5511914258886)    ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// URL configurada — aviso oculto
+// document.getElementById('cfg-warn').classList.add('show');
+
+let chatHistory = [];
+let busy = false;
+
+const SYSTEM = `You are the virtual assistant for WB Assessoria, a Brazilian immigration and consular services firm. You are multilingual and detect the language of each message automatically, always responding in the exact same language the user wrote in. You are fluent in: Português (Brazilian Portuguese), English, Español, Français, Kreyòl ayisyen (Haitian Creole), فارسی (Persian/Farsi). NEVER switch languages unless the user does.
+
+SERVICES OFFERED (3 only):
+1. Naturalização Brasileira — for foreigners seeking Brazilian citizenship
+2. Autorização de Residência (Reagrupamento Familiar) — family reunification in Brazil
+3. Visto de Turismo para os EUA (B-1/B-2) — US tourist/business visa for Brazilians
+
+FULL LEGAL KNOWLEDGE — LEI 13.445/2017: Art. 1º regulates legal status of immigrants. Art. 3º principles: universality, indivisibility, equality, non-criminalization, non-discrimination. Art. 12: visa types. Art. 13: visit visa up to 90 days, max 180/year. Arts. 30–45: Residence Authorization for spousal/union with Brazilian, Brazilian child/parent, research, work. Art. 37: family reunification for spouse, child, parent. Art. 65: ordinary naturalization requires (I) civil capacity; (II) 4 years residence min; (III) Portuguese communication; (IV) no criminal conviction. Art. 65 §1º: reduced to 1 year if Brazilian child, Brazilian spouse, relevant services, outstanding capacity, or Portuguese-speaking country origin. Art. 67: extraordinary naturalization at 15+ years uninterrupted residence. Art. 68: special naturalization for spouse of diplomat. Art. 70: provisional naturalization for child under 10. Art. 75: loss of nationality if another acquired. Art. 4º: immigrant rights including labor, education, healthcare, banking, justice.
+
+FULL LEGAL KNOWLEDGE — PORTARIA 623/2020: Regulates naturalization, equality of rights for Portuguese nationals, loss/reacquisition of nationality. Mandatory ordinary naturalization documents: (1) signed form; (2) national ID; (3) passport even expired; (4) CRNM permanent residence; (5) criminal certificates Federal and State; (6) criminal record from country of origin legalized and translated; (7) proof of habitual residence Art. 56; (8) Portuguese language proof; (9) Federal Revenue/FGTS/INSS clearances; (10) Labor Court clearance. Art. 56: sporadic absences do not break continuity. Extraordinary: form + 15 years residence proof + clearances. Portuguese equality (Arts. 18–22): 3+ years permanent residence. Refugees/stateless exempt from foreign criminal record. Filing at Ministry of Justice or MigranteWeb.
+
+FULL LEGAL KNOWLEDGE — DECRETO 9.199/2017: Fully regulates Lei 13.445/2017. Arts. 4–47: visa categories. Arts. 111–145: Residence Authorization procedures. Arts. 117–122 reagrupamento familiar: permanent resident may request reunification of spouse, minor/incapacitated child, dependent parent; filed at Federal Police or consulate. Arts. 219–312: naturalization procedures; Art. 222 communicative Portuguese; Art. 312 loss of residence if absent 2+ years without justification. Arts. 149–182: CRNM mandatory 90-day deadline. Art. 61: no deportation if risk of persecution/torture/death.
+
+US TOURIST VISA B-1/B-2: B-2 leisure/family/medical. B-1 business. Mandatory consular interview. Key docs: valid passport, DS-160, proof of Brazilian ties, bank statements, income proof, US photo. MRV fee before interview. Validity generally 10 years multiple entries, max 6 months/visit. Prior denials must be declared.
+
+BEHAVIOR RULES:
+- ALWAYS detect user's language and respond in that same language throughout.
+- Tone: direct, objective, professional.
+- Answer legal questions confidently citing articles when helpful.
+- Goal: qualify and capture leads for WB Assessoria.
+- Ask ONE question per message only.
+- When lead shows interest in hiring, collect in order: FULL NAME → EMAIL → PHONE WITH AREA CODE → PREFERRED CONSULTATION DATE.
+- Max 4 sentences per message.
+- When all data collected (name, email, phone), append after separator ---JSON---:
+{"nome":"...","email":"...","telefone":"...","servico":"Naturalização Brasileira|Autorização de Residência|Visto EUA|Não definido","consulta":"date or A definir","status":"Novo","idioma":"detected language name in Portuguese e.g. Português/Inglês/Espanhol/Francês/Criolo/Persa"}
+- After JSON confirm (in user's language) data is registered and team will contact them.
+- If asked outside the 3 services, politely redirect.`;
+
+function ts() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function parseMd(t) {
+  return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g,'<em>$1</em>')
+          .replace(/\n/g,'<br>');
+}
+function extractLead(text) {
+  if (!text.includes('---JSON---')) return null;
+  try { const m = text.split('---JSON---')[1].trim().match(/\{[\s\S]*?\}/); return m ? JSON.parse(m[0]) : null; }
+  catch { return null; }
+}
+function cleanText(t) { return t.includes('---JSON---') ? t.split('---JSON---')[0].trim() : t; }
+
+async function saveToSheets(lead) {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(lead)
+    });
+  } catch(e) { console.warn('Sheets:', e); }
+}
+
+const msgsEl = document.getElementById('msgs');
+function addMsg(role, text, qrs=[]) {
+  const row = document.createElement('div');
+  row.className = `row${role==='me'?' me':''}`;
+  const av = document.createElement('div');
+  av.className = `av ${role==='me'?'usr':'bot'}`;
+  av.textContent = role==='me'?'👤':'⚖️';
+  const bub = document.createElement('div');
+  bub.className = `bub ${role==='me'?'me':'bot'}`;
+  bub.innerHTML = parseMd(text);
+  if (qrs.length) {
+    const wrap = document.createElement('div'); wrap.className='qrs';
+    qrs.forEach(q=>{
+      const btn=document.createElement('button'); btn.className='qr'; btn.textContent=q;
+      btn.onclick=()=>{send(q);wrap.remove();}; wrap.appendChild(btn);
+    });
+    bub.appendChild(wrap);
+  }
+  const t=document.createElement('span'); t.className='ts'; t.textContent=ts(); bub.appendChild(t);
+  row.appendChild(av); row.appendChild(bub); msgsEl.appendChild(row);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function showTyping() {
+  const row=document.createElement('div'); row.className='row'; row.id='typing';
+  const av=document.createElement('div'); av.className='av bot'; av.textContent='⚖️';
+  const d=document.createElement('div'); d.className='typing'; d.innerHTML='<span></span><span></span><span></span>';
+  row.appendChild(av); row.appendChild(d); msgsEl.appendChild(row); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function hideTyping() { const el=document.getElementById('typing'); if(el)el.remove(); }
+function showToast() {
+  const t=document.getElementById('toast'); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+async function callClaude(msg) {
+  chatHistory.push({role:'user',content:msg});
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:chatHistory})
+  });
+  const data = await res.json();
+  const raw = data.content?.[0]?.text||'Desculpe, ocorreu um erro.';
+  chatHistory.push({role:'assistant',content:raw});
+  return raw;
+}
+
+async function send(override) {
+  const inp=document.getElementById('txt');
+  const text=(override||inp.value).trim();
+  if (!text||busy) return;
+  inp.value=''; inp.style.height='44px';
+  busy=true; document.getElementById('snd').disabled=true;
+  addMsg('me',text); showTyping();
+  try {
+    const raw = await callClaude(text);
+    hideTyping();
+    const lead = extractLead(raw);
+    const display = cleanText(raw);
+    const isFirst = chatHistory.filter(m=>m.role==='user').length===1;
+    const qrs = isFirst ? ['🇧🇷 Naturalização Brasileira','🏠 Autorização de Residência','✈️ Visto para os EUA'] : [];
+    addMsg('bot',display,qrs);
+    if (lead&&lead.nome&&lead.email) { await saveToSheets(lead); showToast(); }
+  } catch(e) { hideTyping(); addMsg('bot','Erro de conexão. Por favor, tente novamente.'); }
+  busy=false; document.getElementById('snd').disabled=false;
+}
+
+const txt=document.getElementById('txt');
+txt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+txt.addEventListener('input',()=>{txt.style.height='auto';txt.style.height=Math.min(txt.scrollHeight,110)+'px';});
+document.getElementById('snd').addEventListener('click',()=>send());
+
+(async()=>{
+  busy=true; document.getElementById('snd').disabled=true; showTyping();
+  try {
+    const raw=await callClaude('Olá');
+    hideTyping();
+    addMsg('bot',cleanText(raw),['🇧🇷 Naturalização Brasileira','🏠 Autorização de Residência','✈️ Visto para os EUA']);
+  } catch {
+    hideTyping();
+    addMsg('bot','Bem-vindo à **WB Assessoria**! Como posso ajudar?\n\nOferecemos: **Naturalização Brasileira**, **Autorização de Residência** e **Visto de Turismo para os EUA**.',
+      ['🇧🇷 Naturalização Brasileira','🏠 Autorização de Residência','✈️ Visto para os EUA']);
+  }
+  busy=false; document.getElementById('snd').disabled=false;
+})();
+</script>
+</body>
+</html>
