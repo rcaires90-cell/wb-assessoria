@@ -299,11 +299,22 @@ function showToast() {
   setTimeout(()=>t.classList.remove('show'),4000);
 }
 
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  CHAVE DA API ANTHROPIC                                      ║
+// ║  Obtenha em: https://console.anthropic.com/settings/keys    ║
+// ╚══════════════════════════════════════════════════════════════╝
+const ANTHROPIC_API_KEY = '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';
+
 async function callClaude(msg) {
   chatHistory.push({role:'user',content:msg});
   const res = await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:chatHistory})
   });
   const data = await res.json();
